@@ -1,0 +1,9 @@
+[tool.isort]
+profile = "black"
+src_paths = ["isort", "tests"]
+skip = [".gitignore", ".git" , ".idea/*", ".venv/*", ".csv", ".json", ".yaml", "quell_ml_tools/*"]
+line_length = 120
+
+[tool.semantic_release]
+version_variable = ["__init__.py:__version__"]
+branch = "main"
