@@ -76,18 +76,19 @@ def float_random(
     ), TypeError(
         "Both given lower_bound_inclusive and upper_bound_inclusive must be Booleans"
     )
-    if lower_bound_inclusive and upper_bound_inclusive:
-        drawn_value = (np.random.random() + SAMPLING_TOOL) * (
-            upper_bound - lower_bound
-        ) + lower_bound
-    elif lower_bound_inclusive and not upper_bound_inclusive:
+    while True:
         drawn_value = np.random.random() * (upper_bound - lower_bound) + lower_bound
-    elif not lower_bound_inclusive and upper_bound_inclusive:
-        drawn_value = -(-np.random.random() * (lower_bound - upper_bound)) + lower_bound
-    else:
-        while True:
-            drawn_value = np.random.random() * (upper_bound - lower_bound) + lower_bound
-            if drawn_value != lower_bound:
+        if lower_bound_inclusive and upper_bound_inclusive:
+            if lower_bound <= drawn_value <= upper_bound:
+                break
+        if not lower_bound_inclusive and upper_bound_inclusive:
+            if lower_bound < drawn_value <= upper_bound:
+                break
+        if lower_bound_inclusive and not upper_bound_inclusive:
+            if lower_bound <= drawn_value < upper_bound:
+                break
+        if not lower_bound_inclusive and not upper_bound_inclusive:
+            if lower_bound < drawn_value < upper_bound:
                 break
     if lambda_function is not None:
         drawn_value = lambda_function(drawn_value)
@@ -212,6 +213,10 @@ def transform_exp_base_2(x: int):
     return 2 ** x
 
 
+def transform_exp_2(x: int):
+    return x ** 2
+
+
 """
 se_dict = {
     "integer_random_log": InputValueSpace(
@@ -219,4 +224,7 @@ se_dict = {
 }
 
 se = SearchSpace(input_dict=se_dict)
+
+
+"Cases" for conditional scapes
 """
