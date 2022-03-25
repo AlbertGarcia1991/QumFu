@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from unittest import TestCase
-
+import time
+import gc
 import numpy as np
 import pytest
 from scipy.stats import chisquare
@@ -286,6 +287,9 @@ class TestSearchSpace(TestCase):
             for i in range(1000):
                 drawn_samples.append(integer_normal(mu=0, sigma=1))
             _, pvalue = chisquare(drawn_samples)
+            if pvalue == 0:
+                time.sleep(0.5)
+                gc.collect()
         self.assertGreaterEqual(
             a=pvalue, b=0.05
         )  # Chi-Square test to reject Null hypothesis if p-value > 0.05

@@ -217,14 +217,27 @@ def transform_exp_2(x: int):
     return x ** 2
 
 
+class ConditionalSpace:
+    def __init__(self, input_dict, conditional_subchoices):
+        pass
+
+
+# se_dict_opt1 = {
+#     "choice": InputValueSpace(
+#         se_type=choice, params_dict={"options": ["A", "B"]}),
+#     "conditionalSpace": ConditionalSpace(
+#         InputValueSpace(
+#                 se_type=choice, params_dict={"options": ["A", "B"]}),
+#         {
+#             "A": [{"integer_random_log": InputValueSpace(se_type=integer_random, params_dict={"lower_bound": 1, "upper_bound": 5})}],
+#             "B": [{"integer_random_log": InputValueSpace(se_type=integer_random, params_dict={"lower_bound": 1, "upper_bound": 5})}]
+#         }
+#     )
+# }
+#
+# se = SearchSpace(input_dict=se_dict)
+# print(se.drawn_current)
+
 """
-se_dict = {
-    "integer_random_log": InputValueSpace(
-        se_type=integer_random, params_dict={"lower_bound": 1, "upper_bound": 5, "lambda_function": transform_log}),
-}
-
-se = SearchSpace(input_dict=se_dict)
-
-
 "Cases" for conditional scapes
 """
