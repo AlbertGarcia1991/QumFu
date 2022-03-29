@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
-from unittest import TestCase
-import time
 import gc
+import time
+from unittest import TestCase
+
 import numpy as np
-import pytest
 from scipy.stats import chisquare
 from search_space import (
+    InputValueSpace,
+    SearchSpace,
     choice,
     float_normal,
     float_random,
     integer_normal,
     integer_random,
+    static,
     transform_exp_2,
     transform_exp_base_2,
     transform_exp_base_10,
@@ -384,3 +387,63 @@ class TestSearchSpace(TestCase):
         self.assertEqual(first=np.int32, second=type(choice(options=[1])))
         self.assertEqual(first=np.float64, second=type(choice(options=[1.0])))
         self.assertEqual(first=np.bool_, second=type(choice(options=[True])))
+
+    def test_search_space_initialization_with_conditions(self):
+        se_dict = {
+            "activation": InputValueSpace(
+                se_type=static, params_dict={"value": "relu"}
+            ),
+            "n_layers": InputValueSpace(
+                se_type=integer_random, params_dict={"lower_bound": 1, "upper_bound": 4}
+            ),
+            "units_layer_1": InputValueSpace(
+                se_type=integer_random,
+                params_dict={
+                    "lower_bound": 2,
+                    "upper_bound": 10,
+                    "lambda_function": transform_exp_base_2,
+                },
+            ),
+            "units_layer_2": InputValueSpace(
+                se_type=integer_random,
+                params_dict={
+                    "lower_bound": 2,
+                    "upper_bound": 10,
+                    "lambda_function": transform_exp_base_2,
+                },
+            ),
+            "units_layer_3": InputValueSpace(
+                se_type=integer_random,
+                params_dict={
+                    "lower_bound": 2,
+                    "upper_bound": 10,
+                    "lambda_function": transform_exp_base_2,
+                },
+            ),
+            "units_layer_4": InputValueSpace(
+                se_type=integer_random,
+                params_dict={
+                    "lower_bound": 2,
+                    "upper_bound": 10,
+                    "lambda_function": transform_exp_base_2,
+                },
+            ),
+            "kernel_initializer": InputValueSpace(
+                se_type=choice,
+                params_dict={
+                    "options": ["glorot_uniform", "glorot_normal", "identity"]
+                },
+            ),
+            "kernel_regularizer": InputValueSpace(
+                se_type=choice, params_dict={"options": [None, "l1", "l2"]}
+            ),
+        }
+
+        SearchSpace(
+            input_dict=se_dict,
+            conditions_dict={
+                "units_layer_2": ["n_layers", "gte", 2],
+                "units_layer_3": ["n_layers", "gte", 3],
+                "units_layer_4": ["n_layers", "gte", 4],
+            },
+        )
