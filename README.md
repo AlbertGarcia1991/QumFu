@@ -1,7 +1,17 @@
 # Hypertuning
 
-Library containing tools to perform random, Bayesian, and reinforcement-learning based function optimization, 
-together with all required tools to use it.
+QumFu (QUell My FUnction) is a package to perform function optimization in Python via a wide range
+of state-of-the-art algorithms, mainly focused on machine learning hyper-parameter tuning through the library built-in
+wrappers around Scikit-Learn, RAPIDS, and Tensorflow.
+
+It provides:
+- Tools to set the search space allowing conditional spaces as well (sampling parameters based on the already sampled
+    values of other parameters).
+- Different range of single- and multi-objective optimization algorithms.
+- Evaluation metrics for single- and multi-objective problems.
+
+Besides the main focus of the library to be used in the task of machine learning hyper-parameters tuning, the library
+functions can be applied to any optimization problem in Python.
 
 It is based in the following modules:
 
@@ -19,6 +29,8 @@ It is based in the following modules:
     * ```float_random```: same than integer_normal, but drawing a float value.
     
     * ```choice```: it draws randomly one of the given options. Those could be any type.
+  
+    * ```static```: placeholder to store constants that do not need to be optimized.
     
     
     
@@ -43,3 +55,6 @@ It is based in the following modules:
 
   * ```rl```: it searches for a minimum on the tracking metrics based on a Q-Learning reinforcement learning algorithm.
     The behavious of this algorithm is also controller with the parameters delta, gamma, and ro.
+    
+
+**All QumFu wheels distributed on PyPI are GPLv3 licensed**
