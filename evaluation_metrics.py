@@ -17,7 +17,7 @@ def weighted_score(g: np.ndarray, w_vector: np.ndarray = None) -> float:
     if w_vector is None:
         return np.sum(g)
     else:
-        assert len(w_vector) == 3, ValueError("Weights vector must have length 3")
+        assert len(w_vector) == 3, ValueError("Both solution and weights vector must have length 3")
         return np.sum(np.multiply(g, w_vector))
 
 
@@ -38,7 +38,7 @@ def general_distance(x: np.ndarray, z: np.ndarray) -> float:
     return gd
 
 
-def hypervolume(g: np.ndarray, optimal_values: np.ndarray = np.array([1, 3000, 200])) -> float:
+def hypervolume(g: np.ndarray, optimal_values: np.ndarray = None) -> float:
     """ Measures the percentage between the current solution and the ideal situation where accuracy is 100%, model's
     size is 0, and latency is 0 as well.
 
@@ -50,10 +50,10 @@ def hypervolume(g: np.ndarray, optimal_values: np.ndarray = np.array([1, 3000, 2
         hv: percentage of the hypervolume covered by the solution. Is it covers the 100%, means that the solution is
             perfect.
     """
-    assert len(g) == 3, ValueError(
-        "Both solution and weights vector must have length 3"
-    )
+    assert len(g) == 3, ValueError("Solution vector must have length 3")
     assert 0 <= g[0] <= 1, ValueError("Accuracy must be a number between 0 and 1")
+    if optimal_values is None:
+        optimal_values = np.array([1, 3000, 200])
     acc_volume = g[0] / optimal_values[0]
     size_volume = 1 - g[1] / optimal_values[1]
     latency_volume = 1 - g[2] / optimal_values[2]
