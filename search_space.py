@@ -313,12 +313,23 @@ class SearchSpace:
         self.history = []
         self.sample()
 
-    def sample(self, check_repeated_space: bool = True):
+    def delete_history(self):
+        """ Deletes the history of sampled sets.
+        """
+        self.history = []
+
+    def sample(self,
+               check_repeated_space: bool = True,
+               update_history: bool = True,
+               overwrite_last_history: bool = False):
         """ Samples a new set of values for all parameters specified when instantiating the object, checking the given
         conditions (if any).
 
         Args:
             check_repeated_space: If True, it checks that the recent sampled search space has not been explored yet.
+            update_history: If True, the new sampled set will be appended to the history attribute.
+            overwrite_last_history: If True, the new sampled set will replace the latest sampled set inside history
+                attribute.
         """
         if check_repeated_space:
             while not self.current or self.current in self.history:
@@ -327,7 +338,8 @@ class SearchSpace:
         else:
             self.current = dict()
             self._sample_space()
-        self.update_history()
+        if update_history:
+            self.update_history(overwrite_last_history=overwrite_last_history)
 
     def parse_condition(
         self,
@@ -410,37 +422,44 @@ class SearchSpace:
         TODO: Implement second-order conditioning (the conditioning parameter could be also a conditioned parameter)
         """
         # Get non-conditioned parameters
-        self.non_conditioner_parameters = []
-        self.conditioner_parameters = []
-        for key in self.input_dict.keys():
-            if key not in self.conditions_dict.keys():
+        if not self.conditions_dict:
+            self.non_conditioner_parameters = []
+            for key in self.input_dict.keys():
                 self.non_conditioner_parameters.append(key)
                 self.sample_single_param(parameter=key)
-            else:
-                self.conditioner_parameters.append(key)
+        else:
+            self.non_conditioner_parameters = []
+            self.conditioner_parameters = []
+            for key in self.input_dict.keys():
+                if key not in self.conditions_dict.keys():
+                    self.non_conditioner_parameters.append(key)
+                    self.sample_single_param(parameter=key)
+                else:
+                    self.conditioner_parameters.append(key)
 
-        # Get first order conditioned parameters
-        for key in self.conditioner_parameters:
-            conditioning = self.conditions_dict[key][0]
-            condition_operand = self.conditions_dict[key][1]
-            conditional_space = self.conditions_dict[key][2]
-            assert conditioning in self.non_conditioner_parameters, NotImplementedError(
-                "Second order conditions not implemented yet"
-            )
-            if self.parse_condition(
-                conditioning=conditioning,
-                condition_operand=condition_operand,
-                conditional_space=conditional_space,
-            ):
-                self.sample_single_param(parameter=key)
+            # Get first order conditioned parameters
+            for key in self.conditioner_parameters:
+                conditioning = self.conditions_dict[key][0]
+                condition_operand = self.conditions_dict[key][1]
+                conditional_space = self.conditions_dict[key][2]
+                assert conditioning in self.non_conditioner_parameters, NotImplementedError(
+                    "Second order conditions not implemented yet"
+                )
+                if self.parse_condition(
+                    conditioning=conditioning,
+                    condition_operand=condition_operand,
+                    conditional_space=conditional_space,
+                ):
+                    self.sample_single_param(parameter=key)
 
-    # se = SearchSpace(input_dict=se_dict, conditions_dict={"l1_ratio": ["penalty", "eq", "elasticnet"]})
-    def sample_single_param(self, parameter: str):
+    def sample_single_param(self, parameter: str, update_history: bool = False):
         """ Samples a single parameter (InputValueSpace) and adds it to the current dictionary in the right key-value
         format.
 
         Args:
             parameter: parameter to sample.
+            update_history: If True, the new sampled value will be changes from the latest sampled set stored inside the
+                history attribute.
         """
         dist = self.input_dict[parameter]
         if dist.distribution in ["integer_random", "float_random"]:
@@ -465,12 +484,21 @@ class SearchSpace:
             raise AttributeError(
                 f"The given distribution '{dist.distribution}' does not exist"
             )
+        if update_history:
+            self.update_history()
 
-    def update_history(self):
+    def update_history(self, overwrite_last_history: bool = False):
         """ Appends the current sampled search space to the history list attribute. It is called everytime we sample
         a new whole search space set by running sample() method.
+
+        Args:
+            overwrite_last_history: If True, the new sampled set will replace the latest sampled set inside history
+                attribute.
         """
-        self.history.append(self.current)
+        if overwrite_last_history and len(self.history) > 0:
+            self.history[-1] = self.current
+        else:
+            self.history.append(self.current)
 
 
 def transform_log_base_10(x: int):

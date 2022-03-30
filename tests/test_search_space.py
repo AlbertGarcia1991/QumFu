@@ -447,3 +447,17 @@ class TestSearchSpace(TestCase):
                 "units_layer_4": ["n_layers", "gte", 4],
             },
         )
+
+    def test_search_space_initialization_without_conditions(self):
+        se_dict = {
+            "activation": InputValueSpace(
+                se_type=static, params_dict={"value": "relu"}
+            ),
+            "n_layers": InputValueSpace(
+                se_type=integer_random, params_dict={"lower_bound": 1, "upper_bound": 4}
+            ),
+        }
+
+        SearchSpace(
+            input_dict=se_dict,
+        )
